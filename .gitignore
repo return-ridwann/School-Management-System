@@ -1,0 +1,23 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+school-sms
+
+# Test binary, built with 'go test -c'
+*.test
+
+# Output of the go coverage tool
+*.out
+
+# Local SQLite databases
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Operating system files
+.DS_Store
+Thumbs.db

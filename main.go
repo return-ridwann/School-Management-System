@@ -41,6 +41,11 @@ func main() {
 	}
 	defer db.DB.Close()
 
+	// seed default admin if needed
+	if err := db.SeedAdmin(db.DB); err != nil {
+		log.Fatalf("Failed to seed admin: %v", err)
+	}
+
 	mux := http.NewServeMux()
 
 	// Health check endpoint

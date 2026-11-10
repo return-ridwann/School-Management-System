@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"sms/db"
+	"sms/handlers"
 )
 
 // send JSON response
@@ -50,6 +51,11 @@ func main() {
 
 	// Health check endpoint
 	mux.HandleFunc("GET /api/health", handleHealth)
+
+	// Auth endpoints
+	mux.HandleFunc("POST /api/login", handlers.HandleLogin)
+	mux.HandleFunc("POST /api/logout", handlers.HandleLogout)
+	mux.HandleFunc("GET /api/me", handlers.HandleMe)
 
 	// serve static files from directory
 	fs := http.FileServer(http.Dir("./static"))

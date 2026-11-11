@@ -57,6 +57,10 @@ func main() {
 	mux.HandleFunc("POST /api/logout", handlers.HandleLogout)
 	mux.HandleFunc("GET /api/me", handlers.HandleMe)
 
+	// RBAC test endpoints
+	mux.HandleFunc("GET /api/admin/test", handlers.RequireRole(handlers.HandleAdminTest, "admin"))
+	mux.HandleFunc("GET /api/teacher/test", handlers.RequireRole(handlers.HandleTeacherTest, "teacher"))
+
 	// serve static files from directory
 	fs := http.FileServer(http.Dir("./static"))
 	mux.Handle("/", fs)

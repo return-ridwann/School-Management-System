@@ -108,30 +108,68 @@ func HandleLogout(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// return current user session
-func HandleMe(w http.ResponseWriter, r *http.Request) {
+// get session from request cookie and check validity
+func GetSessionFromRequest(r *http.Request) (Session, bool) {
 	cookie, err := r.Cookie("session_token")
 	if err != nil {
-		writeError(w, http.StatusUnauthorized, "unauthorized")
-		return
+		return Session{}, false
 	}
 
 	sessionMutex.RLock()
-	session, exists := sessions[cookie.Value]
+	sess, exists := sessions[cookie.Value]
 	sessionMutex.RUnlock()
 
 	if !exists {
+		return Session{}, false
+	}
+
+	if time.Now().After(sess.ExpiresAt) {
+		sessionMutex.Lock()
+		delete(sessions, cookie.Value)
+		sessionMutex.Unlock()
+		return Session{}, false
+	}
+
+	return sess, true
+}
+
+// check session and role permissions
+func RequireRole(next http.HandlerFunc, allowedRoles ...string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		sess, ok := GetSessionFromRequest(r)
+		if !ok {
+			writeError(w, http.StatusUnauthorized, "Unauthorized: please log in")
+			return
+		}
+
+		for _, role := range allowedRoles {
+			if sess.Role == role {
+				next(w, r)
+				return
+			}
+		}
+
+		writeError(w, http.StatusForbidden, "Forbidden: insufficient permissions")
+	}
+}
+
+// test endpoint for admin role
+func HandleAdminTest(w http.ResponseWriter, r *http.Request) {
+	writeJSON(w, http.StatusOK, map[string]string{"message": "Admin access granted"})
+}
+
+// test endpoint for teacher role
+func HandleTeacherTest(w http.ResponseWriter, r *http.Request) {
+	writeJSON(w, http.StatusOK, map[string]string{"message": "Teacher access granted"})
+}
+
+// return current user session
+func HandleMe(w http.ResponseWriter, r *http.Request) {
+	sess, ok := GetSessionFromRequest(r)
+	if !ok {
 		writeError(w, http.StatusUnauthorized, "unauthorized")
 		return
 	}
 
-	if time.Now().After(session.ExpiresAt) {
-		sessionMutex.Lock()
-		delete(sessions, cookie.Value)
-		sessionMutex.Unlock()
-		writeError(w, http.StatusUnauthorized, "session expired")
-		return
-	}
-
-	writeJSON(w, http.StatusOK, session)
+	writeJSON(w, http.StatusOK, sess)
 }

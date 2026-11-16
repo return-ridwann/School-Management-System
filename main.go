@@ -61,6 +61,11 @@ func main() {
 	mux.HandleFunc("GET /api/admin/test", handlers.RequireRole(handlers.HandleAdminTest, "admin"))
 	mux.HandleFunc("GET /api/teacher/test", handlers.RequireRole(handlers.HandleTeacherTest, "teacher"))
 
+	// redirect root to login page
+	mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/login.html", http.StatusSeeOther)
+	})
+
 	// serve static files from directory
 	fs := http.FileServer(http.Dir("./static"))
 	mux.Handle("/", fs)

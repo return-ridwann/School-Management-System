@@ -153,16 +153,6 @@ func RequireRole(next http.HandlerFunc, allowedRoles ...string) http.HandlerFunc
 	}
 }
 
-// test endpoint for admin role
-func HandleAdminTest(w http.ResponseWriter, r *http.Request) {
-	writeJSON(w, http.StatusOK, map[string]string{"message": "Admin access granted"})
-}
-
-// test endpoint for teacher role
-func HandleTeacherTest(w http.ResponseWriter, r *http.Request) {
-	writeJSON(w, http.StatusOK, map[string]string{"message": "Teacher access granted"})
-}
-
 // return current user session
 func HandleMe(w http.ResponseWriter, r *http.Request) {
 	sess, ok := GetSessionFromRequest(r)

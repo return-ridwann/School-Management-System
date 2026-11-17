@@ -57,10 +57,6 @@ func main() {
 	mux.HandleFunc("POST /api/logout", handlers.HandleLogout)
 	mux.HandleFunc("GET /api/me", handlers.HandleMe)
 
-	// RBAC test endpoints
-	mux.HandleFunc("GET /api/admin/test", handlers.RequireRole(handlers.HandleAdminTest, "admin"))
-	mux.HandleFunc("GET /api/teacher/test", handlers.RequireRole(handlers.HandleTeacherTest, "teacher"))
-
 	// redirect root to login page
 	mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/login.html", http.StatusSeeOther)
